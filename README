@@ -1,13 +1,13 @@
-The site-snippets framework
-===========================
-Version 2019.298
+The POSIX shell '.profile'-snippets framework
+=============================================
+Version 2020.3
 
 This framework allows to globally share or site-locally augment
 site-specific customizations of your login-shell's ~/.profile
 initialization script.
 
 The directory containing this README file should have been
-checked-out, symlinked or copied as /usr/local/etc/site for a
+checked-out, symlinked or copied as /usr/local/etc/shellrc for a
 site-wide installation, or somewhere below the user's $HOME
 directory for a per-user installation.
 
@@ -15,18 +15,18 @@ In both cases there should exist a per-user directory
 ~/.profile.d containing symlinks to all the *.sh shell snippets
 which shall be sourced by the framework.
 
-There shall also exist a symlink ~/.profile.d/site, which points
-to THIS directory /usr/local/etc/site or wherever the directory
-is located in case of a per-user installation.
+There shall also exist a symlink ~/.profile.d/shellrc, which
+points to THIS directory /usr/local/etc/shellrc or wherever the
+directory is located in case of a per-user installation.
 
 The ~/.profile.d directory itself shall contain all *.sh snippets
 which shall by sourced in lexicographical order, which can either
 have been created by the local user herself or just have been
 symlinked to shared pre-existing snippets in the
-~/.profile.d/site subdirectory.
+~/.profile.d/shellrc subdirectory.
 
 There are basically 2 subdirectories with snippets within
-~/.profile.d/site to choose from:
+~/.profile.d/shellrc to choose from:
 
 - profile.d.avail
 - profile.d.recommended
@@ -60,7 +60,7 @@ unset sh
 Alternatively, there is also a "profile.d.avail"-snippet
 available which does exactly that, which you could source as
 
-. ~/.profile.d/site/profile.d.avail/00user_snippets.sh
+. ~/.profile.d/shellrc/profile.d.avail/00user_snippets.sh
 
 within your ~/.profile login-shell initialization script.
 
@@ -68,7 +68,7 @@ within your ~/.profile login-shell initialization script.
 Site-customization
 ------------------
 
-The local site administrator who sets up /usr/local/etc/site
+The local site administrator who sets up /usr/local/etc/shellrc
 could of course create all files and symlinks there manually, but
 there is a better choice which allows sharing a
 version-controlled branch that can be replicated identically to
@@ -91,40 +91,24 @@ customizing this "site"-subdirectory.
 Example 1: Site administrator does not need to customize
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In this example, the shared branch has been checked out in such a
-way that the template for the /usr/local/etc/site is available at
-/usr/local/etc/myrealm/local/etc/site.
+In this example, the shared branch has been checked out
+directly as /usr/local/etc/shellrc.
 
 The administrator wants to use this template unmodified, no
-customization intended at the moment. In this case, creating
-a symlink is all that is required:
-
-$ ln -s /usr/local/etc/myrealm/local/etc/site /usr/local/etc/site 
-
-After creation, the administrator should really convert this
-symlink from an absolute ones into a relative ones.
-
-Absolute symlinks should never be used without a good reason,
-because they will stop working when the whole filesystem
-containing the symlink is mounted at an unexpected location, such
-as when mounting from a rescue system. Relative symlinks will
-still work in such a case, provided the relative symlinks do not
-cross filesystem boundaries.
+customization intended at the moment.
 
 
 Example 2: Site administrator needs to customize
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In this example, the shared branch has been checked out in such a
-way that the template for the /usr/local/etc/site is available at
-/usr/local/etc/myrealm/local/etc/site.
+In this example, the shared branch has been checked out as
+/usr/local/shellrc/shared rather than as /usr/local/shellrc.
 
 In order to set up and prepare a customizable
-/usr/local/etc/site, she does the following:
+/usr/local/etc/shellrc, the administrator then does the
+following:
 
-$ mkdir /usr/local/etc/site
-$ cd /usr/local/etc/site
-$ ln -s /usr/local/etc/myrealm/local/etc/site shared
+$ cd /usr/local/etc/shellrc
 $ for sh in shared/*
 do
 	ln -s -- "$sh"
@@ -145,35 +129,50 @@ $ d=profile.d.recommended && rm $d && mkdir $d && (
 )
 
 After this, the administrator should really convert all the
-symlinks in /usr/local/etc/site from absolute ones into relative
-ones. Except for the /usr/local/etc/site/shared symlink itself,
-all the remaining symlinks that have been created should be made
-relative to the /usr/local/etc/site/shared symlink.
+symlinks in /usr/local/etc/shellrc from absolute ones into
+relative ones. After this, all the symlinks that have been
+created should be relative to the /usr/local/etc/shellrc/shared
+symlink.
 
-See example 1 for some reasons why to avoid absolute symlinks.
+See the top-section about site customization for some reasons why
+to avoid absolute symlinks.
+
+In any case, the /usr/local/etc/shellrc/profile.d.*
+subdirectories now contain symlinks to the original snippets in
+the "shared"-subdirectory. The administrator can therefore add
+additional snippets, replace ones that need modification, or
+remove unwanted symlinks without affecting the original branch.
 
 
 Example 3: Individual user using administrator-provided setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example, the site administrator did set up a
-/usr/local/etc/site directory, and the user just wants to use it.
+/usr/local/etc/shellrc directory, and the user just wants to use
+it.
 
 In order to set up and prepare a customizable ~/.profile.d
 directory, the user does the following:
 
 $ mkdir -m 700 ~/.profile.d
 $ cd ~/.profile.d
-$ ln -s /usr/local/etc/site ~/.profile.d/
+$ ln -s /usr/local/etc/shellrc ~/.profile.d/
 $ echo >> ~/.profile \
-	'. ~/.profile.d/site/profile.d.avail/00user_snippets.sh'
+	'. ~/.profile.d/shellrc/profile.d.avail/00user_snippets.sh'
 
-After creating that symlink, also try to convert it into a
-relative one for the same reasons as explained in example 1.
+After creation, the administrator should really convert this
+symlink from an absolute ones into a relative ones.
+
+Absolute symlinks should never be used without a good reason,
+because they will stop working when the whole filesystem
+containing the symlink is mounted at an unexpected location, such
+as when mounting from a rescue system. Relative symlinks will
+still work in such a case, provided the relative symlinks do not
+cross filesystem boundaries.
 
 A normal user is never intended to customize or augment the
-contents of ~/.profile.d/site, so no copying of the contents is
-necessary in this case.
+contents of ~/.profile.d/shellrc, so no copying of the contents
+is necessary in this case.
 
 User-specific *.sh snippets will be created directly in the
 ~/.profile.d directory instead.
@@ -183,31 +182,26 @@ Example 4: Individual user installing independent local setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this example, the site administrator did not set up a
-/usr/local/etc/site, but the user still wants to use the
-site-snippets framework for ~/profile cumstomization.
+/usr/local/etc/shellrc, but the user still wants to use the
+site-snippets framework for ~/.profile cumstomization.
 
-For that reason, the user has checked out the shared
-version-control branch in such a way that the template originally
-intended for the /usr/local/etc/site is now available as
-~/.config/site-pulmfbx1uutp14crtpr96c4ti. (This is a location as
-good as any other. Feel free to re-use this directory path, but
-there is no obligation.)
-
-In order to set up and prepare a customizable ~/.profile.d
-directory, she does the following:
+First, the user creates the base directory:
 
 $ mkdir -m 700 ~/.profile.d
 $ cd ~/.profile.d
-$ ln -s ~/.config/site-pulmfbx1uutp14crtpr96c4ti site
-$ echo >> ~/.profile \
-	'. ~/.profile.d/site/profile.d.avail/00user_snippets.sh'
 
-After creating that symlink, also try to convert it into a
-relative one for the same reasons as explained in example 1.
+Then, the user checks out the version-control branch containing
+*this* README file as subdirectory "shellrc".
+
+The next thing is setting up the automatic sourcing of the user's
+snippet selection from the ~/.profile:
+
+$ echo >> ~/.profile \
+	'. ~/.profile.d/shellrc/profile.d.avail/00user_snippets.sh'
 
 A normal user is never intended to customize or augment the
-contents of ~/.profile.d/site, so no copying of the contents is
-necessary in this case.
+contents of ~/.profile.d/shellrc, so no copying of the contents
+is necessary in this case.
 
 User-specific *.sh snippets will be created directly in the
 ~/.profile.d directory instead.
