@@ -2,7 +2,7 @@
 # Migrate the user's current profile.d to using the new repository
 # where THIS script is a part of.
 #
-# Version 2020.12.1
+# Version 2020.12.2
 # Copyright (c) 2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -13,6 +13,7 @@ pdbase=.profile.d
 plink=shellrc
 olink=site
 tag_dir=profile.d.avail
+opt_helper=optimize-symlinks-as-relative
 
 set -e
 cleanup() {
@@ -61,7 +62,12 @@ then
 	:
 else
 	ln -snf -- "$tgt" "$pd/$plink"
-	echo "Please make '$pd/$plink' into a relative link!"
+	if command -v -- "$opt_helper" > /dev/null 2>& 1
+	then
+		"$opt_helper" "$pd/$plink"
+	else
+		echo "Please make '$pd/$plink' into a relative link!"
+	fi
 fi
 
 find -H "$pd" -type l \
@@ -97,6 +103,13 @@ then
 		diff -u -- "$main" "$T" || :
 		cat < "$T" > "$main"
 	fi
+fi
+
+o=$pd/$olink
+if test -L "$o"
+then
+	echo "Removing outdated symlink '$o'!"
+	rm -- "$o"
 fi
 
 echo && { tr '\n' ' ' <<- EOF && echo; } | fold -sw 66
