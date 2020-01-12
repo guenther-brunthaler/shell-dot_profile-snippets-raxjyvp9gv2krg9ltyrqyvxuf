@@ -1,6 +1,6 @@
 The POSIX shell '.profile'-snippets framework
 =============================================
-Version 2020.3
+Version 2020.12
 
 This framework allows to globally share or site-locally augment
 site-specific customizations of your login-shell's ~/.profile
@@ -45,7 +45,7 @@ There is a helper snippet for sourcing all the snippets in
 follows, thus enabling automatic sourcing of the local site
 administrator's recommended snippets:
 
-$ ln -s site/profile.d.avail/10site_recommendations.sh ~/.profile.d
+$ ln -s shellrc/profile.d.avail/10site_recommendations.sh ~/.profile.d
 
 In order to actually enable the framework for including
 site-specific as well as per-user custom settings in your
@@ -85,14 +85,14 @@ symlinked to the actual location.
 The symlinks then represent a basic subset of the available files
 or subdirectories, but the local user or site-administrator can
 add additional files or remove unwanted symlinks, thus
-customizing this "site"-subdirectory.
+customizing this "shellrc"-subdirectory.
 
 
 Example 1: Site administrator does not need to customize
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In this example, the shared branch has been checked out
-directly as /usr/local/etc/shellrc.
+In this example, the shared branch has been checked out directly
+as /usr/local/etc/shellrc.
 
 The administrator wants to use this template unmodified, no
 customization intended at the moment.
@@ -183,7 +183,7 @@ Example 4: Individual user installing independent local setup
 
 In this example, the site administrator did not set up a
 /usr/local/etc/shellrc, but the user still wants to use the
-site-snippets framework for ~/.profile cumstomization.
+shellrc-snippets framework for ~/.profile cumstomization.
 
 First, the user creates the base directory:
 
