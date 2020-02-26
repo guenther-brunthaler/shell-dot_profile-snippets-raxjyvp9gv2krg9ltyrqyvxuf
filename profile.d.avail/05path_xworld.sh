@@ -1,7 +1,7 @@
 #! /bin/false
 # Add "xworld"-site binary directories to $PATH.
 #
-# Version 2020.57.2
+# Version 2020.57.3
 # Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -31,6 +31,12 @@ then
 else
 	bdistro=
 fi
+
+# Workaround for bug: Command substitution does not work in nested
+# HERE-DOCUMENTS in dash on armv7l (on x86 it works).
+sbin=`case \`id -u\` in 0) echo /sbin; esac`
+xworld_distro=`case $distro in '') ;; *) echo /xworld_$distro; esac`
+xworld_bdistro=`case $bdistro in '') ;; *) echo /xworld_$bdistro; esac`
 
 awk -f /dev/fd/5 5<< '---------' << =========
 
@@ -75,7 +81,7 @@ END {
 	$0= ""; OFS= ":"; k= 1
 	ok= system("true")
 	for (j= 0; j < i; ++j) {
-		if (system("test -d \"" g[j] "\"") == ok) {
+		if (g[j] == "" || system("test -d \"" g[j] "\"") == ok) {
 			#print "PATH[" k "] = " g[j] >> "/dev/stderr"
 			$(k++)= g[j]
 		}
@@ -90,14 +96,14 @@ _internal
 /tmp
 /local
 /locally_merged
-`case $distro in '') ;; *) echo /xworld_$distro; esac`
+$xworld_distro
 ${distro:+/}$distro
-`case $bdistro in '') ;; *) echo /xworld_$bdistro; esac`
+$xworld_bdistro
 ${bdistro:+/}$bdistro
 /xworld
 :
 <---
-`case \`id -u\` in 0) echo /sbin; esac`
+$sbin
 /bin
 <---
 $HOME
