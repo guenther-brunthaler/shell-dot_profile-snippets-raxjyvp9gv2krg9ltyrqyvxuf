@@ -1,8 +1,8 @@
 #! /bin/false
-# Add "xworld"-site binaries to $PATH.
+# Add "xworld"-site binary directories to $PATH.
 #
-# Version 2019.287
-# Copyright (c) 2019 Guenther Brunthaler. All rights reserved.
+# Version 2020.57
+# Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
@@ -19,94 +19,130 @@ test -d "$cachedir" \
 	|| mkdir -m700 -- "$cachedir"
 exec > "$pro_rWB858IAc1YUcQZ9628WWkgWP"
 
-set --
+{
+	echo "One-time \$PATH initialization..."; echo
+	if command -v lsb_release > /dev/null
+	then
+		distro=`lsb_release -is | awk '{print tolower($0)}'`
+		echo "Linux distribution suffix: $distro"
+	else
+		distro=
+	fi
+	if test "$distro" != debian && test -e /etc/debian_version
+	then
+		bdistro=debian
+		echo "Base Linux distribution suffix: $bdistro"
+	else
+		bdistro=
+	fi
+	echo; echo "Testing path permutations as possible \$PATH directories."
+	echo "This will take a while - please wait ..."
+} >& 2
 uid=`id -u`
+
+set --
 pfxlen=0
 while read d
 do
-	wc=
 	case $d in
-		*=0) true =0;d=${d%=*}; test x"$uid" != x0 && continue;;
-		+)
-			true +;test -n "$pfxlen" && shift $pfxlen; pfxlen=$#
-			continue
-			;;
-		:) true :;d=;;
-		*"*"*) true wildcard;wc=y
+		'') continue;; # Ignore empty (after expansion) entries.
+		:) d=;; # A verbatim empty entry which will not be ignored.
+		+) shift $pfxlen; pfxlen=$#; continue # End of group.
 	esac
-	if test $pfxlen = 0
-	then
-		set -- "$@" "$d"
-	else
-		# Append $d to a copy of all prefixes.
-		true outer;i=0
-		while test $i != $pfxlen
-		do
-			true extract; # Extract ${i}th argument as $x.
-			j=0
-			while test $j != $#
+	case $pfxlen in
+		0) set -- "$@" "$d";;
+		*)
+			i=0 # Append $d to a copy of all prefixes.
+			while test $i != $pfxlen
 			do
-				c=$1; shift; set -- "$@" "$c"
-				test $i = $j && x=$c
-				j=`expr $j + 1`
-			done
-			# Make $x the augmented prefix element copy or a
-			# wildcard pattern.
-			true augment;x=$x${d:+/}$d
-			if test -n "$wc"
-			then
-				true process wildcard;n=$#
-				# Expand wildcard pattern and prepend result
-				# set to $@.
-				set -- `ls -d -- $x 2> /dev/null` "$@"
-				# Did the wildcards actually get expanded?
-				test x"$1" = x"$x" && shift
-				# Move wildcard expansions to end of $@.
-				true move to end;n=`expr $# - $n || :`
-				while test $n != 0
+				j=0 # Put copy of ${i}th argument into $x.
+				while test $j != $#
 				do
 					c=$1; shift; set -- "$@" "$c"
-					n=`expr $n - 1 || :`
+					test $i = $j && x=$c
+					j=`expr $j + 1`
 				done
-			else
-				set -- "$@" "$x"
-			fi
-			i=`expr $i + 1`
-		done
-	fi
+				# Append a copy of the current entry to all
+				# members of the last group.
+				set -- "$@" "$x$d"; i=`expr $i + 1`
+				printf . >& 2
+			done
+		esac
 done << EOF
 $HOME
 $HOME/.local
 /usr/local
+:
 /usr
 +
-sbin=0
-bin
+`case $uid in 0) echo /sbin; esac`
+/bin
 +
 :
-tmp
-local
-locally_merged
-xworld
-xworld_*
+/tmp
+/local
+/locally_merged
+/xworld
+`case $distro in '') ;; *) echo /xworld_$distro; esac`
+${distro:+/}$distro
+`case $bdistro in '') ;; *) echo /xworld_$bdistro; esac`
+${bdistro:+/}$bdistro
++
+:
+_internal
 +
 EOF
-# Remove entries which do not actually exist or are already present in $PATH.
-npath=
-while test $# != 0
+
+# Remove permuted paths which do not actually exist.
+i=0
+while test $i != $#
 do
-	c=$1; shift
-	test -d "$c" || continue
-	r=$PATH:
-	while test -n "$r"
+	if test -d "$1"
+	then
+		set -- "$@" "$1"
+		: echo "PATH entry '$1'" >& 2
+		i=`expr $i + 1`
+	fi
+	shift
+done
+
+# Append entries from existing $PATH, but only if they actually exist and are
+# not duplicates of paths already added earlier.
+r=$PATH
+while test "$r"
+do
+	c=${r%%:*}
+	case $c in
+		"$r") r=;;
+		*) r=${r#"$c:"}
+	esac
+	i=0; j=
+	while test $i != $#
 	do
-		f=${r%%:*}; r=${r#*:}
-		test x"$f" = x"$c" && continue 2
+		case $1 in "$c") j=$i; esac
+		set -- "$@" "$1"; shift
+		i=`expr $i + 1`
 	done
+	case $j in '') ;; *) continue; esac
+	test ! -d "$c" && continue
+	set -- "$@" "$c"
+	: echo "PATH entry '$c' (from old \$PATH)" >& 2
+done
+
+# Assemble new $PATH.
+npath=
+for c
+do
 	npath=$npath${npath:+:}$c
 done
-npath=$npath${npath:+${PATH:+:}}$PATH
+
+{
+	echo " finished."; echo
+	echo "Updating \$PATH cache '$pro_rWB858IAc1YUcQZ9628WWkgWP'."
+	echo "Delete this cache file in order to enforce a re-scan."
+} >& 2
 echo "PATH_rWB858IAc1YUcQZ9628WWkgWP=\"$npath\""
+
 )
 } && {
 	. "$pro_rWB858IAc1YUcQZ9628WWkgWP"
