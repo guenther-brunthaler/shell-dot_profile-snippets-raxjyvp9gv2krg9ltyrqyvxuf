@@ -1,7 +1,7 @@
 #! /bin/false
 # Add "xworld"-site binary directories to $PATH.
 #
-# Version 2020.57.3
+# Version 2020.57.4
 # Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -34,9 +34,7 @@ fi
 
 # Workaround for bug: Command substitution does not work in nested
 # HERE-DOCUMENTS in dash on armv7l (on x86 it works).
-sbin=`case \`id -u\` in 0) echo /sbin; esac`
-xworld_distro=`case $distro in '') ;; *) echo /xworld_$distro; esac`
-xworld_bdistro=`case $bdistro in '') ;; *) echo /xworld_$bdistro; esac`
+case `id -u` in 0) sbin=/sbin;; *) sbin=; esac
 
 awk -f /dev/fd/5 5<< '---------' << =========
 
@@ -96,9 +94,9 @@ _internal
 /tmp
 /local
 /locally_merged
-$xworld_distro
+${distro:+/xworld_}$distro
 ${distro:+/}$distro
-$xworld_bdistro
+${bdistro:+/xworld_}$bdistro
 ${bdistro:+/}$bdistro
 /xworld
 :
