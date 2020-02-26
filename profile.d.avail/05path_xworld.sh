@@ -1,7 +1,7 @@
 #! /bin/false
 # Add "xworld"-site binary directories to $PATH.
 #
-# Version 2020.57
+# Version 2020.57.1
 # Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -19,63 +19,77 @@ test -d "$cachedir" \
 	|| mkdir -m700 -- "$cachedir"
 exec > "$pro_rWB858IAc1YUcQZ9628WWkgWP"
 
-{
-	echo "One-time \$PATH initialization..."; echo
-	if command -v lsb_release > /dev/null
-	then
-		distro=`lsb_release -is | awk '{print tolower($0)}'`
-		echo "Linux distribution suffix: $distro"
-	else
-		distro=
-	fi
-	if test "$distro" != debian && test -e /etc/debian_version
-	then
-		bdistro=debian
-		echo "Base Linux distribution suffix: $bdistro"
-	else
-		bdistro=
-	fi
-	echo; echo "Testing path permutations as possible \$PATH directories."
-	echo "This will take a while - please wait ..."
-} >& 2
-uid=`id -u`
+if command -v lsb_release > /dev/null
+then
+	distro=`lsb_release -is | awk '{print tolower($0)}'`
+else
+	distro=
+fi
+if test "$distro" != debian && test -e /etc/debian_version
+then
+	bdistro=debian
+else
+	bdistro=
+fi
 
-set --
-pfxlen=0
-while read d
-do
-	case $d in
-		'') continue;; # Ignore empty (after expansion) entries.
-		:) d=;; # A verbatim empty entry which will not be ignored.
-		+) shift $pfxlen; pfxlen=$#; continue # End of group.
-	esac
-	case $pfxlen in
-		0) set -- "$@" "$d";;
-		*)
-			i=0 # Append $d to a copy of all prefixes.
-			while test $i != $pfxlen
-			do
-				j=0 # Put copy of ${i}th argument into $x.
-				while test $j != $#
-				do
-					c=$1; shift; set -- "$@" "$c"
-					test $i = $j && x=$c
-					j=`expr $j + 1`
-				done
-				# Append a copy of the current entry to all
-				# members of the last group.
-				set -- "$@" "$x$d"; i=`expr $i + 1`
-				printf . >& 2
-			done
-		esac
-done << EOF
+awk -f /dev/fd/5 5<< '---------' << =========
+
+$0 == "" {next} # Ignore lines which became empty after expansion.
+
+$0 == ":" {$0= ""} # Specify an empty entry which will *not* be igored.
+
+$0 == "+" {
+	# Finish group definition, replace previous group.
+	for (i in g) delete g[i]
+	for (i in a) {
+		g[i]= a[i]; delete a[i]
+	}
+	i= 0
+	next
+}
+
+!(0 in g) {
+	# No previous group? Just append entry to incomplete current group.
+	a[i++]= $0; next
+}
+
+{
+	# There is a previous group.
+	# Append a copy of all entries of the previous group suffixed
+	# with the current entry to the new incomplete group.
+	for (j= 0; j in g; ++j) a[i++]= g[j] $0
+}
+
+END {
+	# Append entries from existing $PATH, but only if they are not
+	# duplicates of paths already present in completed group g[].
+	for (i= 0; i in g; ++i) inv[g[i]]= i
+	n= split(ENVIRON["PATH"], a, ":")
+	for (j= 1; j <= n; ++j) {
+		if (!(a[j] in inv)) {
+			inv[g[i]= a[j]]= i; ++i
+		}
+	}
+
+	# Assemble new $PATH from paths in g[] which actually do exist.
+	$0= ""; OFS= ":"; k= 1
+	ok= system("true")
+	for (j= 0; j < i; ++j) {
+		if (system("test -d \"" g[j] "\"") == ok) {
+			$(k++)= g[j]
+		}
+	}
+	print "PATH_rWB858IAc1YUcQZ9628WWkgWP=\"" $0 "\""
+}
+
+---------
 $HOME
 $HOME/.local
 /usr/local
 :
 /usr
 +
-`case $uid in 0) echo /sbin; esac`
+`case \`id -u\` in 0) echo /sbin; esac`
 /bin
 +
 :
@@ -91,57 +105,7 @@ ${bdistro:+/}$bdistro
 :
 _internal
 +
-EOF
-
-# Remove permuted paths which do not actually exist.
-i=0
-while test $i != $#
-do
-	if test -d "$1"
-	then
-		set -- "$@" "$1"
-		: echo "PATH entry '$1'" >& 2
-		i=`expr $i + 1`
-	fi
-	shift
-done
-
-# Append entries from existing $PATH, but only if they actually exist and are
-# not duplicates of paths already added earlier.
-r=$PATH
-while test "$r"
-do
-	c=${r%%:*}
-	case $c in
-		"$r") r=;;
-		*) r=${r#"$c:"}
-	esac
-	i=0; j=
-	while test $i != $#
-	do
-		case $1 in "$c") j=$i; esac
-		set -- "$@" "$1"; shift
-		i=`expr $i + 1`
-	done
-	case $j in '') ;; *) continue; esac
-	test ! -d "$c" && continue
-	set -- "$@" "$c"
-	: echo "PATH entry '$c' (from old \$PATH)" >& 2
-done
-
-# Assemble new $PATH.
-npath=
-for c
-do
-	npath=$npath${npath:+:}$c
-done
-
-{
-	echo " finished."; echo
-	echo "Updating \$PATH cache '$pro_rWB858IAc1YUcQZ9628WWkgWP'."
-	echo "Delete this cache file in order to enforce a re-scan."
-} >& 2
-echo "PATH_rWB858IAc1YUcQZ9628WWkgWP=\"$npath\""
+=========
 
 )
 } && {
