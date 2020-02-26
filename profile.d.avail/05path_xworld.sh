@@ -1,7 +1,7 @@
 #! /bin/false
 # Add "xworld"-site binary directories to $PATH.
 #
-# Version 2020.57.1
+# Version 2020.57.2
 # Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -38,7 +38,7 @@ $0 == "" {next} # Ignore lines which became empty after expansion.
 
 $0 == ":" {$0= ""} # Specify an empty entry which will *not* be igored.
 
-$0 == "+" {
+$0 == "<---" {
 	# Finish group definition, replace previous group.
 	for (i in g) delete g[i]
 	for (i in a) {
@@ -54,10 +54,10 @@ $0 == "+" {
 }
 
 {
-	# There is a previous group.
-	# Append a copy of all entries of the previous group suffixed
-	# with the current entry to the new incomplete group.
-	for (j= 0; j in g; ++j) a[i++]= g[j] $0
+	# There is a previous group. Append a copy of all entries of the
+	# previous group prefixed with the current entry to the new incomplete
+	# group.
+	for (j= 0; j in g; ++j) a[i++]= $0 g[j]
 }
 
 END {
@@ -76,6 +76,7 @@ END {
 	ok= system("true")
 	for (j= 0; j < i; ++j) {
 		if (system("test -d \"" g[j] "\"") == ok) {
+			#print "PATH[" k "] = " g[j] >> "/dev/stderr"
 			$(k++)= g[j]
 		}
 	}
@@ -83,28 +84,28 @@ END {
 }
 
 ---------
+_internal
+:
+<---
+/tmp
+/local
+/locally_merged
+`case $distro in '') ;; *) echo /xworld_$distro; esac`
+${distro:+/}$distro
+`case $bdistro in '') ;; *) echo /xworld_$bdistro; esac`
+${bdistro:+/}$bdistro
+/xworld
+:
+<---
+`case \`id -u\` in 0) echo /sbin; esac`
+/bin
+<---
 $HOME
 $HOME/.local
 /usr/local
 :
 /usr
-+
-`case \`id -u\` in 0) echo /sbin; esac`
-/bin
-+
-:
-/tmp
-/local
-/locally_merged
-/xworld
-`case $distro in '') ;; *) echo /xworld_$distro; esac`
-${distro:+/}$distro
-`case $bdistro in '') ;; *) echo /xworld_$bdistro; esac`
-${bdistro:+/}$bdistro
-+
-:
-_internal
-+
+<---
 =========
 
 )
