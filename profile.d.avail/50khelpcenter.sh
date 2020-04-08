@@ -3,15 +3,16 @@
 # Use khelpcenter to show man/info help pages if khelpcenter is installed and
 # when it is safe/possible to do so (e. g. only in an X11 session).
 #
-# Version 2020.99
+# Version 2020.99.1
+
+case $- in
+	*i*) ;;
+	*) return
+esac
 
 man() {
 	{
-		case $- in
-			*i*) ;;
-			*) false
-		esac \
-		&& command -v khelpcenter \
+		command -v khelpcenter \
 		&& test "`id -u`" != 0 \
  		&& xset q \
  		&& dbus-send --dest=org.freedesktop.DBus \
@@ -25,11 +26,7 @@ man() {
 
 info() {
 	{
-		case $- in
-			*i*) ;;
-			*) false
-		esac \
-		&& command -v khelpcenter \
+		command -v khelpcenter \
 		&& test "`id -u`" != 0 \
  		&& xset q \
  		&& dbus-send --dest=org.freedesktop.DBus \
