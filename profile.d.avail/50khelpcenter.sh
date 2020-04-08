@@ -7,7 +7,11 @@
 
 man() {
 	{
-		command -v khelpcenter \
+		case $- in
+			*i*) ;;
+			*) false
+		esac \
+		&& command -v khelpcenter \
 		&& test "`id -u`" != 0 \
  		&& xset q \
  		&& dbus-send --dest=org.freedesktop.DBus \
@@ -21,7 +25,11 @@ man() {
 
 info() {
 	{
-		command -v khelpcenter \
+		case $- in
+			*i*) ;;
+			*) false
+		esac \
+		&& command -v khelpcenter \
 		&& test "`id -u`" != 0 \
  		&& xset q \
  		&& dbus-send --dest=org.freedesktop.DBus \
