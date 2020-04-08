@@ -9,9 +9,10 @@ man() {
 	{
 		command -v khelpcenter \
 		&& test "`id -u`" != 0 \
+ 		&& xset q \
  		&& dbus-send --dest=org.freedesktop.DBus \
 			--print-reply / org.freedesktop.DBus.ListNames \
- 		&& xset q && case $* in
+ 		&& case $* in
 			*-*) false
 		esac && (khelpcenter "man:`man -w "$@"`" &)
 	}  < /dev/null > /dev/null 2>& 1 \
@@ -22,9 +23,10 @@ info() {
 	{
 		command -v khelpcenter \
 		&& test "`id -u`" != 0 \
+ 		&& xset q \
  		&& dbus-send --dest=org.freedesktop.DBus \
 			--print-reply / org.freedesktop.DBus.ListNames \
- 		&& xset q && case $* in
+ 		&& case $* in
 			*-*) false
 		esac && (khelpcenter "info:/$*" &)
 	}  < /dev/null > /dev/null 2>& 1 \
