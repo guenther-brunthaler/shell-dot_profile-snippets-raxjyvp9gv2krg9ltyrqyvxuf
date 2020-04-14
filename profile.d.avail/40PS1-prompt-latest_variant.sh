@@ -1,1 +1,1 @@
-40PS1-prompt-latest_revision.sh
+40PS1-prompt-20200413.sh
