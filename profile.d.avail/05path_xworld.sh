@@ -1,7 +1,7 @@
 #! /bin/false
 # Add "xworld"-site binary directories to $PATH.
 #
-# Version 2020.57.4
+# Version 2020.141
 # Copyright (c) 2019-2020 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -88,16 +88,15 @@ END {
 }
 
 ---------
-_internal
-:
 <---
+/internal
 /tmp
 /local
 /locally_merged
-${distro:+/xworld_}$distro
 ${distro:+/}$distro
-${bdistro:+/xworld_}$bdistro
 ${bdistro:+/}$bdistro
+:
+<---
 /xworld
 :
 <---
@@ -111,6 +110,12 @@ $HOME/.local
 /usr
 <---
 =========
+# In the definitions above, $PATH will be assembled by group first
+# (separated by "<--" where later groups have higher priority) and by line
+# within the group next (where earlier lines have higher priority). The last
+# group is special: It specifies all possible starting prefixes for $PATH
+# entries. (Those prefixes will NOT be attempted to be added to $PATH on
+# their own.)
 
 )
 } && {
