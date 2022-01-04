@@ -4,20 +4,27 @@
 # Does not care about gpg-agent. (Which is dubious anyway because it saves all
 # private keys only weakly encrypted with AES-128 into a normal directory.)
 #
-# Note that the companion snippet for setting up $XDG_RUNTIME_DIR also creates
-# a symlink to the directory at a fixed location. This symlink can be used by
-# programs like keepassxc which need a fixed pathame for the ssh-agent's
-# socket.
+# The $SSH_AUTH_SOCK will be created at a fixed location as required by
+# programs like "keepassxc" for the ssh-agent's socket.
 #
-# v2022.4.1
+# v2022.4.2
 
 command -v ssh-agent > /dev/null 2>& 1 || return
-test -d "$XDG_RUNTIME_DIR" || return
+test -d "$HOME" || return
 
-f_8cns6zzm9653up08mq3zc5r3z=$XDG_RUNTIME_DIR/\
-ssh-agent-until-shutdown-8cns6zzm9653up08mq3zc5r3z.nfo
-SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/\
-ssh-agent-until-shutdown-8cns6zzm9653up08mq3zc5r3z.socket
+SSH_AUTH_SOCK=${XDG_CACHE_HOME:-"$HOME"/.cache}
+test -d "$SSH_AUTH_SOCK" || mkdir -- "$SSH_AUTH_SOCK"
+SSH_AUTH_SOCK=$SSH_AUTH_SOCK\
+/ssh-agent-until-shutdown-8cns6zzm9653up08mq3zc5r3z.socket
+
+if test "$XDG_RUNTIME_DIR" && test -d "$XDG_RUNTIME_DIR"
+then
+	f_8cns6zzm9653up08mq3zc5r3z=$XDG_RUNTIME_DIR
+else
+	f_8cns6zzm9653up08mq3zc5r3z=${XDG_CACHE_HOME:-"$HOME"/.cache}
+fi
+f_8cns6zzm9653up08mq3zc5r3z=$f_8cns6zzm9653up08mq3zc5r3z\
+/ssh-agent-until-shutdown-8cns6zzm9653up08mq3zc5r3z.nfo
 
 r_8cns6zzm9653up08mq3zc5r3z=
 while :
