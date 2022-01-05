@@ -1,4 +1,4 @@
-# Overrides the system default editor with "ne".
+# Overrides the system default editor with "nano".
 #
 # If you *really* prefer nano, comment out the lines below.
 # But then again, who does?
@@ -9,9 +9,9 @@
 # This script is free software.
 # Distribution is permitted under the terms of the GPLv3.
 
-if test -f /usr/bin/ne
+if test -f /usr/bin/nano
 then
-	EDITOR=/usr/bin/ne
+	EDITOR=/usr/bin/nano
 fi
 
 VISUAL=$EDITOR
