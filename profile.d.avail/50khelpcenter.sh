@@ -3,14 +3,14 @@
 # Use khelpcenter to show man/info help pages if khelpcenter is installed and
 # when it is safe/possible to do so (e. g. only in an X11 session).
 #
-# Version 2020.99.1
+# Version 2022.43
 
 case $- in
 	*i*) ;;
 	*) return
 esac
 
-man() {
+gman() {
 	{
 		command -v khelpcenter \
 		&& test "`id -u`" != 0 \
@@ -24,7 +24,7 @@ man() {
 	|| command man "$@"
 }
 
-info() {
+ginfo() {
 	{
 		command -v khelpcenter \
 		&& test "`id -u`" != 0 \
