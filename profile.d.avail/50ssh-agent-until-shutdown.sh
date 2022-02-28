@@ -7,7 +7,7 @@
 # The $SSH_AUTH_SOCK will be created at a fixed location as required by
 # programs like "keepassxc" for the ssh-agent's socket.
 #
-# v2022.4.2
+# v2022.59
 
 command -v ssh-agent > /dev/null 2>& 1 || return
 test -d "$HOME" || return
@@ -61,6 +61,7 @@ do
 	esac
 	flock -w 5 9 || break
 	r_8cns6zzm9653up08mq3zc5r3z=wL:$r_8cns6zzm9653up08mq3zc5r3z
+	rm -f -- "$SSH_AUTH_SOCK"
 	ssh-agent -a "$SSH_AUTH_SOCK" \
 		> "$f_8cns6zzm9653up08mq3zc5r3z" 2> /dev/null \
 	|| break
