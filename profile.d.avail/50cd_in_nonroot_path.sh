@@ -1,9 +1,13 @@
+#! /bin/false
+# v2022.101
+#
 # Adds the current directory at the end of the $PATH
 # but only if the current user is not the superuser.
 
-
-if test x"$EUID" != x"0" && test x"$USER" != x"root"
+if test "$EUID" != 0 && test "$USER" != root
 then
-	. /usr/local/libexec/xworld/sh/path_hyec3v5m8kd1vjs8k7d1wce62.sh \
+	set -- \
 		--append .
+		--stop ${1+"$@"}
+	. ~/.profile.d/shellrc/libexec/path_hyec3v5m8kd1vjs8k7d1wce62.sh
 fi

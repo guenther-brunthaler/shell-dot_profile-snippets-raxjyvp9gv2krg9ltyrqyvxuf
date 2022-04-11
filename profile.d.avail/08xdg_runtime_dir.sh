@@ -1,7 +1,7 @@
 #! /bin/sh
 # Set up $XDG_RUNTIME_DIR (unless already set).
 
-# Version 2022.55
+# Version 2022.101
 # Copyright (c) 2019-2022 Guenther Brunthaler. All rights reserved.
 #
 # This script is free software.
@@ -37,7 +37,7 @@ then
 	if
 		test -L "$L_3qunzp66f5emuf5xvt9avr6qy" \
 		&& test "`readlink -- "$L_3qunzp66f5emuf5xvt9avr6qy"`" \
-			== "$XDG_RUNTIME_DIR"
+			= "$XDG_RUNTIME_DIR"
 	then
 		eq_3qunzp66f5emuf5xvt9avr6qy=true
 	else
