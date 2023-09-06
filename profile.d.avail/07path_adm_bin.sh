@@ -1,9 +1,10 @@
 #! /bin/false
-# v2022.101
+# v2023.215
 #
 # Inserts bin directory for additional system-wide binaries into $PATH.
 
 set -- \
+	--append /home/admdevel/bin \
 	--append /home/group/admdevel/bin \
 	--append /home/project/admdevel/bin \
 	--stop ${1+"$@"}
